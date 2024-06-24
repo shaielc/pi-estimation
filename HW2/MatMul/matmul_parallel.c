@@ -39,16 +39,16 @@ int main(int argc, char **argv)
 
     /* Initialize matrices */
 
-    for (i=0; i<Ndim; i++)
-        for (j=0; j<Pdim; j++)
+    for (int i=0; i<Ndim; i++)
+        for (int j=0; j<Pdim; j++)
             *(A+(i*Ndim+j)) = AVAL;
 
-    for (i=0; i<Pdim; i++)
-        for (j=0; j<Mdim; j++)
+    for (int i=0; i<Pdim; i++)
+        for (int j=0; j<Mdim; j++)
             *(B+(i*Pdim+j)) = BVAL;
 
-    for (i=0; i<Ndim; i++)
-        for (j=0; j<Mdim; j++)
+    for (int i=0; i<Ndim; i++)
+        for (int j=0; j<Mdim; j++)
             *(C+(i*Ndim+j)) = 0.0;
 
     /* Do the matrix product */
