@@ -24,7 +24,7 @@
 int main(int argc, char **argv)
 {
     int Ndim, Pdim, Mdim;   /* A[N][P], B[P][M], C[N][M] */
-    double *A, *B, *C, cval, tmp, err, errsq;
+    double *A, *B, *C, cval, err, errsq;
     double start_time, run_time;
 
     omp_set_num_threads(NUM_THREADS);
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
     #pragma omp parallel for collapse(2)
     for (int i=0; i<Ndim; i++){
         for (int j=0; j<Mdim; j++){
-            tmp = 0.0;
+            double tmp = 0.0;
             #pragma omp parallel for reduction(+:tmp)
             for(int k=0;k<Pdim;k++){
                 /* C(i,j) = sum(over k) A(i,k) * B(k,j) */
