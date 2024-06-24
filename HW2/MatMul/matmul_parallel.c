@@ -76,8 +76,8 @@ int main(int argc, char **argv)
            
     cval = Pdim * AVAL * BVAL;
     errsq = 0.0;
-    for (i=0; i<Ndim; i++){
-        for (j=0; j<Mdim; j++){
+    for (int i=0; i<Ndim; i++){
+        for (int j=0; j<Mdim; j++){
             err = *(C+i*Ndim+j) - cval;
             errsq += err * err;
         }
