@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     double start_time, run_time;
 
     omp_set_num_threads(NUM_THREADS);
-    omp_set_nested(1);
+    omp_set_max_active_levels(2);
     
     Ndim = ORDER;
     Pdim = ORDER*100;
