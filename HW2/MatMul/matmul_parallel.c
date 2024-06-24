@@ -24,7 +24,6 @@
 int main(int argc, char **argv)
 {
     int Ndim, Pdim, Mdim;   /* A[N][P], B[P][M], C[N][M] */
-    int i,j,k;
     double *A, *B, *C, cval, tmp, err, errsq;
     double start_time, run_time;
 
@@ -53,14 +52,15 @@ int main(int argc, char **argv)
             *(C+(i*Ndim+j)) = 0.0;
 
     /* Do the matrix product */
+    
 
     start_time = omp_get_wtime(); 
     #pragma parallel for collapse(2)
-    for (i=0; i<Ndim; i++){
-        for (j=0; j<Mdim; j++){
+    for (int i=0; i<Ndim; i++){
+        for (int j=0; j<Mdim; j++){
             tmp = 0.0;
             #pragma parallel for reduction(+:tmp)
-            for(k=0;k<Pdim;k++){
+            for(int k=0;k<Pdim;k++){
                 /* C(i,j) = sum(over k) A(i,k) * B(k,j) */
                 tmp += *(A+(i*Ndim+k)) *  *(B+(k*Pdim+j));
             }
