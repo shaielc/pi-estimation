@@ -55,11 +55,11 @@ int main(int argc, char **argv)
     
 
     start_time = omp_get_wtime(); 
-    #pragma parallel for collapse(2)
+    #pragma omp parallel for collapse(2)
     for (int i=0; i<Ndim; i++){
         for (int j=0; j<Mdim; j++){
             tmp = 0.0;
-            #pragma parallel for reduction(+:tmp)
+            #pragma omp parallel for reduction(+:tmp)
             for(int k=0;k<Pdim;k++){
                 /* C(i,j) = sum(over k) A(i,k) * B(k,j) */
                 tmp += *(A+(i*Ndim+k)) *  *(B+(k*Pdim+j));
