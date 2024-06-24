@@ -31,4 +31,12 @@
 *.out
 *.app
 
+# Aux dirs
 build/
+bin/
+
+# Notebooks
+.ipynb_checkpoints
+
+# Vtune stuff
+r0*
