@@ -47,6 +47,8 @@ int main(int argc, char **argv)
         for (int j=0; j<Mdim; j++)
             *(C+(i*Ndim+j)) = 0.0;
 
+    start_time = omp_get_wtime();
+
     /* Do the matrix product */
     #pragma omp parallel for collapse(2)
     for (int i = 0; i < Pdim; i++) {
@@ -93,7 +95,7 @@ int main(int argc, char **argv)
     errsq = 0.0;
     for (int i=0; i<Ndim; i++){
         for (int j=0; j<Mdim; j++){
-            err = *(C+i*Ndim+j) - cval;
+            err = *(C+i*Mdim+j) - cval;
             errsq += err * err;
         }
     }
