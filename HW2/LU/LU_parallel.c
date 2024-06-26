@@ -3,7 +3,6 @@
 #include<malloc.h>
 #include<math.h>
 #include "omp.h"
-#define NTHREADS 12
 
 void printMatrix(double **a,int n);//helper to print matrix
 
@@ -24,7 +23,6 @@ int main(int argc, char **argv)
   double end;
 
   n=2000;
-  omp_set_num_threads(NTHREADS);
 
   a=(double **)malloc(sizeof(double *)*n);  
   b=(double **)malloc(sizeof(double *)*n);
@@ -47,12 +45,14 @@ int main(int argc, char **argv)
     start = omp_get_wtime();
 
   /*Perform LU decomposition*/
- for(k=0;k<n;k++){
+  for(k=0;k<n;k++){
+    #pragma omp parallel for
     for(j=k+1;j<n;j++){
       a[k][j]=a[k][j]/a[k][k];//Scaling
     }
+    #pragma omp parallel for collapse(2)
     for(i=k+1;i<n;i++){ 
-     for(j=k+1;j<n;j++){
+      for(j=k+1;j<n;j++){
         a[i][j]=a[i][j]-a[i][k]*a[k][j];
        } 
     }
