@@ -46,15 +46,15 @@ int main(int argc, char **argv)
 
   /*Perform LU decomposition*/
 
-  for(k=0;k<n;k++){
+ for(k=0;k<n;k++){
     #pragma omp parallel for collapse(1) private(j) shared(a) firstprivate(k) schedule(auto)
     for(j=k+1;j<n;j++){
       a[k][j]=a[k][j]/a[k][k];//Scaling
     }
     #pragma omp parallel for collapse(2) private(i,j) shared(a) firstprivate(k) schedule(auto)
-    for(i=k+1;i<n;i++){ 
+    for(i=k+1;i<n;i++){
      double aik = a[i][k];
-      for(j=k+1;j<n;j++){
+     for(j=k+1;j<n;j++){
         a[i][j]=a[i][j]-aik*a[k][j];
        } 
     }
@@ -65,10 +65,10 @@ int main(int argc, char **argv)
  printf("Operation took %lf\n",omp_get_wtime()-start);
 
  /*Inplace Verification step */
+ #pragma omp parallel for collapse(2) private(i,j,k,u1,l1) shared(c) num_threads(32)
  for(i=0;i<n;i++){
    for(j=0;j<n;j++){
-     c[i][j]=0;
-
+     double sum = 0.0;
      for(k=0;k<n;k++){
        if(i>=k)l1=a[i][k];
        else l1=0;
@@ -77,12 +77,13 @@ int main(int argc, char **argv)
        else if(k<j)u1=a[k][j]; 
        else u1=0.0;
        
-        c[i][j]=c[i][j]+(l1*u1);
-      
-     } 
+     sum+=l1*u1;
+     }
+    c[i][j]=sum;
    }
   }
  flag=0;
+ 
  for(i=0;i<n;i++){
    for(j=0;j<n;j++){
      if(fabs(c[i][j]-b[i][j])>0.01){
