@@ -18,17 +18,12 @@
 #define AVAL 3.0
 #define BVAL 5.0
 #define TOL  0.001
-#define NUM_THREADS 12
-
 
 int main(int argc, char **argv)
 {
     int Ndim, Pdim, Mdim;   /* A[N][P], B[P][M], C[N][M] */
     double *A, *B, *C, cval, err, errsq;
     double start_time, run_time;
-
-    omp_set_num_threads(NUM_THREADS);
-    omp_set_max_active_levels(2);
     
     Ndim = ORDER;
     Pdim = ORDER*100;
