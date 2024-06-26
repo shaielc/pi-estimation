@@ -53,19 +53,38 @@ int main(int argc, char **argv)
             *(C+(i*Ndim+j)) = 0.0;
 
     /* Do the matrix product */
-    
-
-    start_time = omp_get_wtime(); 
     #pragma omp parallel for collapse(2)
-    for (int i=0; i<Ndim; i++){
-        for (int j=0; j<Mdim; j++){
-            double tmp = 0.0;
-            #pragma omp parallel for reduction(+:tmp)
-            for(int k=0;k<Pdim;k++){
-                /* C(i,j) = sum(over k) A(i,k) * B(k,j) */
-                tmp += *(A+(i*Ndim+k)) *  *(B+(k*Pdim+j));
+    for (int i = 0; i < Pdim; i++) {
+        for (int j = i+1; j < Mdim; j++) {
+            B[j * Mdim + i] += B[i * Mdim + j];
+            B[i * Mdim + j] = B[j * Mdim + i] - B[i * Mdim + j];
+            B[j * Mdim + i] -= B[i * Mdim + j];
+        }
+    }
+    
+    #define BLOCK_SIZE 256
+    #pragma omp parallel for collapse(3) schedule(dynamic) firstprivate(A, B)
+    for (int jj=0; jj < Mdim; jj += BLOCK_SIZE)
+        for (int kk=0; kk < Pdim; kk += BLOCK_SIZE)
+            for (int i=0; i<Ndim; i++){
+                for (int j=jj;  j < (jj + BLOCK_SIZE) && j < Mdim ; j++){
+                    double sum = 0.0;
+                    for(int k=kk; k < (kk + BLOCK_SIZE) && k < Pdim ;k++){
+                        /* C(i,j) = sum(over k) A(i,k) * B(k,j) */
+                         sum += *(A+(i*Pdim+k)) *  *(B+(j*Pdim+k));
+                    }
+                    #pragma omp atomic
+                    *(C+(i*Mdim+j)) += sum;
+                    
+                }
             }
-            *(C+(i*Ndim+j)) = tmp;
+
+    #pragma omp parallel for collapse(2)
+    for (int i = 0; i < Pdim; i++) {
+        for (int j = i+1; j < Mdim; j++) {
+            B[j * Mdim + i] += B[i * Mdim + j];
+            B[i * Mdim + j] = B[j * Mdim + i] - B[i * Mdim + j];
+            B[j * Mdim + i] -= B[i * Mdim + j];
         }
     }
    
