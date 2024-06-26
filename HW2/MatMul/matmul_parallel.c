@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 
     for (int i=0; i<Ndim; i++)
         for (int j=0; j<Pdim; j++)
-            *(A+(i*Ndim+j)) = AVAL;
+            *(A+(i*Pdim+j)) = AVAL;
 
     for (int i=0; i<Pdim; i++)
         for (int j=0; j<Mdim; j++)
