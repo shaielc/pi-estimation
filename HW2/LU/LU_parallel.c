@@ -45,17 +45,20 @@ int main(int argc, char **argv)
     start = omp_get_wtime();
 
   /*Perform LU decomposition*/
+
   for(k=0;k<n;k++){
-    #pragma omp parallel for
+    #pragma omp parallel for collapse(1) private(j) shared(a) firstprivate(k) schedule(auto)
     for(j=k+1;j<n;j++){
       a[k][j]=a[k][j]/a[k][k];//Scaling
     }
-    #pragma omp parallel for collapse(2)
+    #pragma omp parallel for collapse(2) private(i,j) shared(a) firstprivate(k) schedule(auto)
     for(i=k+1;i<n;i++){ 
+     double aik = a[i][k];
       for(j=k+1;j<n;j++){
-        a[i][j]=a[i][j]-a[i][k]*a[k][j];
+        a[i][j]=a[i][j]-aik*a[k][j];
        } 
     }
+    
   }
   /*end of LU decomposition*/
 
