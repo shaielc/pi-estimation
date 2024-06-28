@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
-#define NUM_THREADS 12
 #define SOFTENING 1e-9f
 
 typedef struct { float x, y, z, vx, vy, vz; } Body;
@@ -14,6 +13,7 @@ void randomizeBodies(float *data, int n) {
 }
 
 void bodyForce(Body *p, float dt, int n) {
+  #pragma omp parallel for collapse(2) shared(p) firstprivate(dt) schedule(auto)
   for (int i = 0; i < n; i++) { 
     float Fx = 0.0f; float Fy = 0.0f; float Fz = 0.0f;
 
@@ -40,7 +40,6 @@ int main(const int argc, const char** argv) {
   const float dt = 0.01f; // time step
   const int nIters = 10;  // simulation iterations
   
-  omp_set_num_threads(NUM_THREADS);
   int bytes = nBodies*sizeof(Body);
   float *buf = (float*)malloc(bytes);
   Body *p = (Body*)buf;
@@ -53,12 +52,17 @@ int main(const int argc, const char** argv) {
 
     bodyForce(p, dt, nBodies); // compute interbody forces
 
+    #pragma omp parallel for shared(p) firstprivate(dt) schedule(auto)
     for (int i = 0 ; i < nBodies; i++) { // integrate position
       p[i].x += p[i].vx*dt;
       p[i].y += p[i].vy*dt;
       p[i].z += p[i].vz*dt;
     }
   }
-  printf("Parallel Execution time: %f seconds with %d threads\n", omp_get_wtime()-start_time, NUM_THREADS);
+  int num_threads;
+  #pragma omp parallel
+  #pragma omp single
+  num_threads = omp_get_num_threads();
+  printf("Parallel Execution time: %f seconds with %d threads\n", omp_get_wtime()-start_time, num_threads);
   free(buf);
 }
