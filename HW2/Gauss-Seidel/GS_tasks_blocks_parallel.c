@@ -6,11 +6,13 @@
 #define NTHREADS 12
 
 void gauss_seidel(int tsteps, int size, int TS, double **p) {
-    
+   #pragma omp parallel
+   #pragma omp single
    for(int t=0; t< tsteps; ++t)
       for (int ii = 1; ii+TS < size; ii+=TS) 
          for (int jj = 1; jj+TS < size; jj+=TS) 
             //insert all the following work (on TSxTS cells) to a single task
+            #pragma omp task depend(in:p[ii-1][jj:jj+TS],p[ii:ii+TS][jj-1],p[ii-1][jj-1]) depend(out:p[ii+TS][jj:jj+TS],p[ii:ii+TS][jj+TS])
             for (int i = ii; i < ii+TS; ++i)
                        for (int j = jj; j < jj+TS; ++j)
                           p[i][j] = 0.2*p[i][j-1] + 
